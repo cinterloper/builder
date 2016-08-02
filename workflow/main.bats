@@ -19,4 +19,8 @@ source build.sh
 @test "build repo: $GH_REPO" {
   grab_it
   build_it
+  if [ "$RELEASE" != "" ]
+  then
+    release_it
+  fi
 }
