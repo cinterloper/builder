@@ -1,4 +1,4 @@
 export GH_TOKEN=$(cat ~/.ghtoken )
 export GH_USER=cinterloper
-docker run -t -i -v $(realpath ~/.m2):/root/.m2 -v $(realpath ~/.aws):/root/.aws -e GH_USER -e GH_TOKEN -e GH_REPO=cinterloper/cornerstone
+docker run -t -i -v $(realpath ~/.m2):/root/.m2 -v $(realpath ~/.aws):/root/.aws -v /var/run/docker.sock:/var/run/docker.sock -v $(realpath ~/.docker/):/root/.docker -e GH_USER -e GH_TOKEN -e GH_REPO=cinterloper/cornerstone -e RELEASE=TRUE cinterloper/builder
 
