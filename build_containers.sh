@@ -49,21 +49,8 @@ do
        decodeJson
        for buildjob in $DECODE_KEYS
        do
-         if [[ -f add.sh ]]; then
-         {
-           source add.sh
-           ADD $EXTRA
-          } || {
-           fail
-          }
-         fi
-         cd $origdir
-         log "buildjob ${!buildjob}"
-         TS="docker build $BUILDARGS -t $VENDOR/$buildjob -f ${!buildjob} ."
-         log $TS
-         eval $TS
-         if [[ -f add.sh ]]; then bash add.sh clean; fi
-
+         export buildjob BUILDARGS ctrdir buildpath origpath VENDOR
+         bats workflow/docker.bats
        done
 
     } || {

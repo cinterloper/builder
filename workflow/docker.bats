@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-VARS=( GH_REPO GH_TOKEN GH_USER )
+source build.sh
 
 @test "correct variables passed" {
  result=0
@@ -14,13 +14,13 @@ VARS=( GH_REPO GH_TOKEN GH_USER )
  [ "$result" -eq 0 ]
 
 }
-source build.sh
 
 @test "build repo: $GH_REPO" {
-  grab_it
-  build_it
+  docker_add
+  docker_build
+  docker_clean
   if [ "$RELEASE" != "" ]
   then
-    release_it
+    docker_release
   fi
 }
