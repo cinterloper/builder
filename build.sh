@@ -12,3 +12,23 @@ release_it(){
   cd $dst && bats workflow/build.bats
   cd $dst && bats workflow/release.bats
 }
+docker_add(){
+  if [[ -f add.sh ]]; then
+  {
+    source add.sh
+    ADD $EXTRA
+   } || {
+    fail
+   }
+  fi
+}
+docker_build(){
+  cd $origdir
+  log "buildjob ${!buildjob}"
+  TS="docker build $BUILDARGS -t $VENDOR/$buildjob -f ${!buildjob} ."
+  log $TS
+  eval $TS
+}
+docker_clean(){
+  if [[ -f add.sh ]]; then bash add.sh clean; fi
+}
