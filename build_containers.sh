@@ -49,7 +49,7 @@ do
        decodeJson
        for buildjob in $DECODE_KEYS
        do
-         export buildjob BUILDARGS ctrdir buildpath origpath VENDOR
+         export buildjob BUILDARGS ctrdir buildpath origpath VENDOR ${!buildjob}
          bats workflow/docker.bats
        done
 
