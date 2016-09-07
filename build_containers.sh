@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 VARS=(VENDOR )
+if [[ "$BASEIMAGE" == "" ]]
+then
+  BASEIMAGE="baseimage"
+fi
 
 fail() {
     echo "ERROR IN BUILD $@"
@@ -14,7 +18,7 @@ log "building base $VENDOR/baseimage "; echo
 {
   if [[ "$SKIPBASE" == "" ]]
   then
-    docker build -t $VENDOR/baseimage .
+    docker build -t $VENDOR/$BASEIMAGE .
   fi
 } || {
   fail
