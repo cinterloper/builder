@@ -13,6 +13,10 @@ build_it() { #the publish destinations depend on the credentials in the enviornm
   cd $dst
   {
     bats workflow/build.bats
+    if [[ -d Containers ]]
+    then
+      bash build_containers.sh
+    fi
     bats workflow/publish.bats
   } || {
     return -1
