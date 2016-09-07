@@ -1,3 +1,6 @@
+#/usr/bin/env bash
+#executable readme!
+
 export GH_TOKEN=$(cat ~/.ghtoken )
 export GH_USER=cinterloper
 export VENDOR=$GH_USER
