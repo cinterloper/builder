@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
+source /opt/lash/bin/init.sh
 VARS=(VENDOR )
+LOGFL=$(mktemp)
 if [[ "$BASEIMAGE" == "" ]]
 then
   BASEIMAGE="baseimage"
@@ -10,9 +12,9 @@ fail() {
     kill -9 $$
 }
 log() {
-  echo $@
+  echo $@ >> $LOGFL
 }
-
+export -f log
 
 log "building base $VENDOR/baseimage "; echo
 {
@@ -26,7 +28,7 @@ log "building base $VENDOR/baseimage "; echo
 origpath=$(realpath pwd)
 for ctrdir in $(find Containers/ -maxdepth 1 -mindepth 1 -type d | grep -v _)
 do
-  buildpath="$(realpath $ctrdir);"
+  buildpath="$(realpath $ctrdir)"
   ctrdir=$(cd $buildpath && echo "${PWD##*/}")
   cd $buildpath
   log "building $VENDOR/${PWD##*/}"; echo
@@ -53,8 +55,9 @@ do
        decodeJson
        for buildjob in $DECODE_KEYS
        do
-         export buildjob BUILDARGS ctrdir buildpath origpath VENDOR ${!buildjob}
-         bats workflow/docker.bats
+         export buildjob BUILDARGS ctrdir buildpath origpath dst VENDOR
+         log bats $dst/workflow/docker.bats
+         bats $dst/workflow/docker.bats
        done
 
     } || {
