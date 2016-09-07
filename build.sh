@@ -1,7 +1,12 @@
 export dst="/tmp/$(echo $GH_REPO | cut -d '/' -f 2)"
 grab_it() {
+  if [[ "$GH_BRANCH" != "" ]]
+  then
+    BRANCH="-b $GH_BRANCH"
+  fi
+
   cd /tmp
-  git clone https://$GH_USER:$GH_TOKEN@github.com/$GH_REPO
+  git clone $BRANCH https://$GH_USER:$GH_TOKEN@github.com/$GH_REPO
 }
 
 build_it() { #the publish destinations depend on the credentials in the enviornment
