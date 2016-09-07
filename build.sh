@@ -13,7 +13,7 @@ build_it() { #the publish destinations depend on the credentials in the enviornm
   cd $dst
   {
     bats workflow/build.bats
-    if [[ -d Containers ]]
+    if [[ -d Containers ]] || [[ -f Dockerfile ]]
     then
       bash build_containers.sh
     fi

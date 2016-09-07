@@ -11,4 +11,4 @@ docker run -t -i -v $(which docker):$(which docker)\
 		 -e GH_TOKEN\
 		 -e GH_BRANCH\
 		 -e GH_REPO=cinterloper/builder\
-		 cinterloper/builder
+		 cinterloper/builder bash
