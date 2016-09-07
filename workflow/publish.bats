@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-@test "build interlink base" {
+@test "publish" {
   [ 0 -eq 0 ]
 }
 
