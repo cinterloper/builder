@@ -10,12 +10,22 @@ grab_it() {
 }
 
 build_it() { #the publish destinations depend on the credentials in the enviornment
-  cd $dst && bats workflow/build.bats
-  cd $dst && bats workflow/publish.bats
+  cd $dst
+  {
+    bats workflow/build.bats
+    bats workflow/publish.bats
+  } || {
+    return -1
+  }
 }
 release_it(){
-  cd $dst && bats workflow/build.bats
-  cd $dst && bats workflow/release.bats
+  cd $dst
+  {
+    bats workflow/build.bats
+    bats workflow/release.bats
+  } || {
+    return -1
+  }
 }
 docker_add(){
   if [[ -f add.sh ]]; then
