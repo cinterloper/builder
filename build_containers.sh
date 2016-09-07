@@ -23,7 +23,7 @@ origpath=$(realpath pwd)
 for ctrdir in $(find Containers/ -maxdepth 1 -mindepth 1 -type d | grep -v _)
 do
   buildpath="$(realpath $ctrdir);"
-  ctrdir=$(cd $buildpath && echo ${PWD##*/}"
+  ctrdir=$(cd $buildpath && echo "${PWD##*/}")
   cd $buildpath
   log "building $VENDOR/${PWD##*/}"; echo
   if [[ ! -f _BUILD_DISABLE ]]; then
