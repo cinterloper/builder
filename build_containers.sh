@@ -12,7 +12,7 @@ fail() {
     kill -9 $$
 }
 log() {
-  echo $@ >> $LOGFL
+  echo $@
 }
 export -f log
 
