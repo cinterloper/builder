@@ -17,8 +17,13 @@ VARS=( GH_REPO GH_TOKEN GH_USER )
 source build.sh
 
 @test "build repo: $GH_REPO" {
-  grab_it
+  if [ "$GRAB_DISABLE" == "" ]
+  then
+    grab_it
+  fi
+
   build_it
+
   if [ "$RELEASE" != "" ]
   then
     release_it

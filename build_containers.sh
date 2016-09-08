@@ -54,7 +54,7 @@ ctr_build_loop() {
              export JSON_STRING=$(cat _JOBS.json)
            fi
            decodeJson
-           for buildjob in $DECODE_KEYS
+           for buildjob in $(echo $DECODE_KEYS)
            do
              docker_add
              docker_build
