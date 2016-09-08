@@ -56,9 +56,9 @@ ctr_build_loop() {
            decodeJson
            for buildjob in $(echo $DECODE_KEYS)
            do
-             docker_add
-             docker_build
-             docker_clean
+             export buildjob VENDOR BUILDARGS
+             cd $buildpath
+             docker_add && docker_build && docker_clean
            done
 
         } || {
@@ -70,7 +70,8 @@ ctr_build_loop() {
 
 }
 docker_add(){
-  if [[ -f add.sh ]]; then
+  if [[ -f add.sh ]] && [[ "$FETCH_DISABLE" == "" ]]
+  then
   {
     source add.sh
     ADD $EXTRA
@@ -84,8 +85,10 @@ docker_build(){
   TS="docker build $BUILDARGS -t $VENDOR/$buildjob -f ${!buildjob} ."
   log $TS
   $TS
+  return $?
 }
 docker_clean(){
   if [[ -f add.sh ]]; then bash add.sh clean; fi
 }
 
+export -f docker_add docker_build docker_clean
