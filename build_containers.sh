@@ -25,45 +25,67 @@ log "building base $VENDOR/baseimage "; echo
 } || {
   fail
 }
-origpath=$(realpath pwd)
-for ctrdir in $(find Containers/ -maxdepth 1 -mindepth 1 -type d | grep -v _)
-do
-  buildpath="$(realpath $ctrdir)"
-  ctrdir=$(cd $buildpath && echo "${PWD##*/}")
-  cd $buildpath
-  log "building $VENDOR/${PWD##*/}"; echo
-  if [[ ! -f _BUILD_DISABLE ]]; then
-    {
-      unset BUILDARGS
-      if [[ -f .buildargs ]]
-      then
-        for arg in $(cat .buildargs)
-        do
-          if [[ "${!arg}" == "" ]]
+ctr_build_loop() {
+    origpath=$(realpath $PWD)
+    for ctrdir in $(find Containers/ -maxdepth 1 -mindepth 1 -type d | grep -v _)
+    do
+      buildpath="$(realpath $ctrdir)"
+      ctrdir=$(cd $buildpath && echo "${PWD##*/}")
+      cd $buildpath
+      log "building $VENDOR/${PWD##*/}"; echo
+      if [[ ! -f _BUILD_DISABLE ]]; then
+        {
+          unset BUILDARGS
+          if [[ -f .buildargs ]]
           then
-            fail "missing $arg variable"
-          else
-            BUILDARGS="$BUILDARGS --build-arg=$arg='"${!arg}"'"
-          fi
-         done
-       fi
-       export JSON_STRING='{"'${PWD##*/}'":"Dockerfile"}'
-       if [[ -f _JOBS.json ]]
-       then
-         export JSON_STRING=$(cat _JOBS.json)
-       fi
-       decodeJson
-       for buildjob in $DECODE_KEYS
-       do
-         export buildjob BUILDARGS ctrdir buildpath origpath dst VENDOR
-         log bats $dst/workflow/docker.bats
-         bats $dst/workflow/docker.bats
-       done
+            for arg in $(cat .buildargs)
+            do
+              if [[ "${!arg}" == "" ]]
+              then
+                fail "missing $arg variable"
+              else
+                BUILDARGS="$BUILDARGS --build-arg=$arg='"${!arg}"'"
+              fi
+             done
+           fi
+           export JSON_STRING='{"'${PWD##*/}'":"Dockerfile"}'
+           if [[ -f _JOBS.json ]]
+           then
+             export JSON_STRING=$(cat _JOBS.json)
+           fi
+           decodeJson
+           for buildjob in $DECODE_KEYS
+           do
+             docker_add
+             docker_build
+             docker_clean
+           done
 
-    } || {
-      fail
-    }
+        } || {
+          fail
+        }
+      fi
+      cd ../../;
+    done
+
+}
+docker_add(){
+  if [[ -f add.sh ]]; then
+  {
+    source add.sh
+    ADD $EXTRA
+   } || {
+    fail
+   }
   fi
-  cd ../../;
-done
+}
+docker_build(){
+  log "buildjob ${!buildjob}"
+  TS="docker build $BUILDARGS -t $VENDOR/$buildjob -f ${!buildjob} ."
+  log $TS
+  $TS
+}
+docker_clean(){
+  if [[ -f add.sh ]]; then bash add.sh clean; fi
+}
 
