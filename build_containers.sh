@@ -9,7 +9,7 @@ fi
 
 fail() {
     echo "ERROR IN BUILD $@"
-    kill -9 $$
+    exit -1
 }
 log() {
   echo $@
@@ -20,16 +20,20 @@ log "building base $VENDOR/baseimage "; echo
 {
   if [[ "$SKIPBASE" == "" ]]
   then
-    docker build -t $VENDOR/$BASEIMAGE .
+    docker build $BUILDOPTS -t $VENDOR/$BASEIMAGE .
   fi
 } || {
   fail
 }
 ctr_build_loop() {
     origpath=$(realpath $PWD)
-    for ctrdir in $(find Containers/ -maxdepth 1 -mindepth 1 -type d | grep -v _)
+    if [ "$CTR_BUILD_LIST" == "" ]
+    then
+      CTR_BUILD_LIST="$(cd Containers/; find * -maxdepth 0 -mindepth 0 -type d | grep -v _)"
+    fi
+    for ctrdir in $(echo $CTR_BUILD_LIST)
     do
-      buildpath="$(realpath $ctrdir)"
+      buildpath="$(realpath Containers/$ctrdir)"
       ctrdir=$(cd $buildpath && echo "${PWD##*/}")
       cd $buildpath
       log "building $VENDOR/${PWD##*/}"; echo
@@ -54,7 +58,12 @@ ctr_build_loop() {
              export JSON_STRING=$(cat _JOBS.json)
            fi
            decodeJson
-           for buildjob in $(echo $DECODE_KEYS)
+           if [ "$SKIP_LIST" != "" ]
+           then
+             FILTER_LIST=$(echo $DECODE_KEYS | grep -v -E "$(echo $SKIP_LIST | tr ' ' '|')" )
+             DECODE_KEYS="$FILTER_LIST"
+           fi
+           for buildjob in $(echo $DECODE_KEYS )
            do
              export buildjob VENDOR BUILDARGS
              cd $buildpath
@@ -82,7 +91,7 @@ docker_add(){
 }
 docker_build(){
   log "buildjob ${!buildjob}"
-  TS="docker build $BUILDARGS -t $VENDOR/$buildjob -f ${!buildjob} ."
+  TS="docker build $BUILDOPTS $BUILDARGS -t $VENDOR/$buildjob -f ${!buildjob} ."
   log $TS
   $TS
   return $?

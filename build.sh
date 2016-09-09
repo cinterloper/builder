@@ -11,7 +11,6 @@ grab_it() {
 
 build_it() { #the publish destinations depend on the credentials in the enviornment
   cd $dst
-  CTR_EXIT=0
   bats workflow/build.bats
   if [[ -d Containers ]] || [[ -f Dockerfile ]]
   then
@@ -20,6 +19,7 @@ build_it() { #the publish destinations depend on the credentials in the enviornm
     CTR_EXIT=$?
   fi
   bats workflow/publish.bats
+  [ $CTR_EXIT -eq 0 ]
 }
 release_it(){
   cd $dst
